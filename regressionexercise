@@ -10,7 +10,7 @@ require(caret)
 require(doParallel)
 ```
 
-We should have our saved R object '2018flights.Rdata'.  Either change the pathname in the load statement or copy the file to the directory this Rmd file is in.
+Refer to '2018flights.Rdata'.  Either change the pathname in the load statement or copy the file to the directory this Rmd file is in.
 
 ```{r loadData}
 load("2018flights.Rdata")
@@ -19,7 +19,7 @@ flightsNotCancelled = df %>%
   na.omit
 ```
 
-To speed up some computations for the purposes of this homework, subsampling from flight database of flights..
+To speed up some computations for the purposes of this exercise, subsampling from flight database of flights..
 
 ```{r subsample}
 set.seed(1)
@@ -68,9 +68,7 @@ normalCI            = c(winterMinusSummer - tQuantile * winterMinusSummerSE,
 #### The CI is 95% with interval endpoints of (`r normalCI[1]`, `r normalCI[2]`)
 ####The estimated winter mean delay is (`r winterMinusSummer`) shorter than the mean summer delay
 
-## Using bootstrap
-
-Let's do 10 bootstrap draws and compare the confidence interval...
+## Using bootstrap, let's do 10 bootstrap draws and compare the confidence interval...
 
 ```{r bootstrapSequential, cache = TRUE}
 nBootstrapDraws = 10
@@ -160,7 +158,7 @@ flightsNotCancelled = flightsNotCancelled[sample(1:nTotal,round(nTotal/2)),]
 
 apply(flightsNotCancelled,2,anyNA)
 
-# Let's clean up the name space to free up memory
+# Clean up the name space to free up memory
 rm(df)
 ```
 
@@ -174,7 +172,7 @@ flights               = flightsNotCancelled %>%
 
 ## Obtain training/test split for evaluating our regression model's performance.  Splitting into 25% train and 75% test, making sure the proportions of flights per months is approximately equal between the two subsets. 
 
-```{r problem21split}
+```{r split}
 training = createDataPartition(flights$MONTH, p = .25, list = FALSE)
 train    = flights[ training,] 
 test     = flights[-training,] 
@@ -184,7 +182,7 @@ test     = flights[-training,]
 
 Converting the factor features to numeric ones via dummy variables. After fitting, the supervisor was transformed logarithmically due to heavy skew when looking at the residual plots... 
 
-```{r problem22dummy}
+```{r dummy}
 dummyVarsX = dummyVars(~ OP_UNIQUE_CARRIER + MONTH, data = train, fullRank = TRUE) 
 dummyVarsX
 Xtrain = predict(dummyVarsX, train)
@@ -202,7 +200,7 @@ A full rank encoding is used
 
 ## 2.3. Fitting the model - We will additionally record the 2-Fold CV estimate of the test error so we can compare to the test error (2-fold, again, for computational reasons).
 
-```{r problem23train}
+```{r train}
 trainControlOut = trainControl(method = 'cv', number = 2)
 lmOut           = train(Xtrain, Ytrain, method="lm",
                         trControl = trainControlOut)
@@ -210,7 +208,7 @@ lmOut           = train(Xtrain, Ytrain, method="lm",
 
 Look at the residuals in any multiple regression application to see if we a missing any structure. Compute and plot the residuals:
 
-```{r problem23residuals}
+```{r residuals}
 YhatTrain = predict(lmOut, newdata = Xtrain)
 residuals = Ytrain - YhatTrain 
 plot(YhatTrain,residuals)
@@ -239,7 +237,7 @@ The apparent error estimate of the test loss is `r apparentError`, the CV estima
 
 Predicting the flights that don't have the DEP_DELAY listed.  Using the above process to transform the observations in 'flightsNeedPrediction' to use our model to get the predictions.  To transform the model predicted DEP_DELAY back to the original scale (it is on log(x + 123), applying the inverse: exp(y) - 123
 
-```{r problem25prediction}
+```{r prediction}
 Xprediction  = predict(dummyVarsX, flightsNeedPrediction) 
 Yhat         = predict(lmOut, newdata = Xprediction) 
 DEP_DELAYhat = exp(Yhat) - 123
