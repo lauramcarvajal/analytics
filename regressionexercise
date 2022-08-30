@@ -10,7 +10,7 @@ require(caret)
 require(doParallel)
 ```
 
-Refer to '2018flights.Rdata'.  Either change the pathname in the load statement or copy the file to the directory this Rmd file is in.
+Refer to '2018flights.Rdata'.  Either change the pathname in the load statement or copy the file to the directory where this Rmd file resides..
 
 ```{r loadData}
 load("2018flights.Rdata")
